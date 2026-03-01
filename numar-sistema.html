@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="NUMAR">
+<meta name="description" content="Sistema de controle de alimentos NUMAR">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230a0a0a'/><text y='72' x='50' text-anchor='middle' font-size='52' font-family='Arial' font-weight='bold' fill='%23c8a96e'>N</text></svg>">
+<title>NUMAR — Sistema de Controle</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<style>
+:root {
+  --preto:#0a0a0a; --branco:#f5f3ee; --ouro:#c8a96e;
+  --verde:#4ade80; --vermelho:#c0392b; --cinza:#2a2a2a;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--preto);min-height:100vh;color:var(--branco);}
+
+/* ── NAV ── */
+.topbar{background:var(--preto);border-bottom:1px solid #1a1a1a;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;color:var(--branco);line-height:1;}
+.logo span{color:var(--ouro);}
+.logo-sub{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:#444;margin-top:1px;}
+
+.nav-tabs{display:flex;gap:4px;overflow-x:auto;padding:0 20px;background:var(--preto);border-bottom:1px solid #1a1a1a;scrollbar-width:none;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.tab{padding:12px 16px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#444;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.tab.active{color:var(--ouro);border-bottom-color:var(--ouro);}
+.tab:hover{color:#888;}
+
+/* ── PÁGINAS ── */
+.page{display:none;padding:20px;padding-bottom:40px;}
+.page.active{display:block;}
+
+/* ── COMPONENTES ── */
+.secao-titulo{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#444;display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.secao-titulo::after{content:'';flex:1;height:1px;background:#1a1a1a;}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.full{grid-column:span 2;}
+.campo{display:flex;flex-direction:column;gap:5px;}
+.campo label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;}
+.campo input,.campo select,.campo textarea{background:#141414;border:1px solid #222;border-radius:8px;padding:12px 14px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--branco);outline:none;width:100%;transition:border-color .2s;-webkit-appearance:none;appearance:none;}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--ouro);}
+.campo select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+
+.btn{border:none;border-radius:10px;padding:14px 16px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:transform .1s,opacity .2s;width:100%;}
+.btn:active{transform:scale(0.97);opacity:.85;}
+.btn-ouro{background:var(--ouro);color:var(--preto);}
+.btn-ghost{background:transparent;color:var(--branco);border:1px solid #333;}
+.btn-verde{background:#0d2b0d;color:var(--verde);border:1px solid #1a4a1a;}
+.btn-red{background:#2a0a0a;color:#f87171;border:1px solid #4a1a1a;}
+.btn-row{display:grid;gap:8px;}
+.btn-row.col2{grid-template-columns:1fr 1fr;}
+.btn-row.col3{grid-template-columns:1fr 1fr 1fr;}
+
+/* ── CARDS ── */
+.card{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:16px;margin-bottom:10px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.card-titulo{font-size:13px;font-weight:700;color:var(--branco);}
+.badge{font-size:8px;font-weight:700;letter-spacing:1.5px;padding:3px 8px;border-radius:20px;text-transform:uppercase;}
+.badge-ok{background:#0a2a0a;color:var(--verde);}
+.badge-warn{background:#2a2a0a;color:#facc15;}
+.badge-err{background:#2a0a0a;color:#f87171;}
+.badge-cinza{background:#1a1a1a;color:#666;}
+
+/* ── PROTEÍNAS ATIVAS ── */
+.proteina-card{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:14px;margin-bottom:10px;transition:border-color .2s;}
+.proteina-card.vencendo{border-color:#4a3a0a;}
+.proteina-card.vencida{border-color:#4a1a1a;opacity:.7;}
+.proteina-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.proteina-nome{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--branco);}
+.proteina-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;}
+.proteina-campo{display:flex;flex-direction:column;gap:2px;}
+.proteina-label{font-size:8px;color:#444;text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+.proteina-valor{font-size:11px;font-weight:700;color:#ccc;}
+.proteina-val-date{color:#f87171;}
+.proteina-actions{display:flex;gap:8px;margin-top:10px;}
+.btn-sm{border:none;border-radius:6px;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.btn-sm-ouro{background:#2a1f0a;color:var(--ouro);border:1px solid #4a3a1a;}
+.btn-sm-red{background:#2a0a0a;color:#f87171;border:1px solid #4a1a1a;}
+.btn-sm-verde{background:#0a2a0a;color:var(--verde);border:1px solid #1a4a1a;}
+
+/* ── CONTAGEM ── */
+.contagem-card{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:16px;margin-bottom:10px;}
+.contagem-produto{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--branco);margin-bottom:4px;}
+.contagem-sub{font-size:10px;color:#555;margin-bottom:14px;}
+.contador{display:flex;align-items:center;gap:16px;margin:12px 0;}
+.contador-btn{width:48px;height:48px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:var(--branco);font-size:22px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.contador-valor{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--ouro);min-width:80px;text-align:center;}
+.contador-label{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:1px;}
+
+/* ── HISTORICO ── */
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a1a1a;}
+.hist-nome{font-size:12px;font-weight:700;color:var(--branco);}
+.hist-meta{font-size:10px;color:#444;}
+.hist-qtd{font-size:14px;font-weight:700;}
+.hist-qtd.entrada{color:var(--verde);}
+.hist-qtd.saida{color:#f87171;}
+
+/* ── ETIQUETA PREVIEW ── */
+.etiqueta-outer{width:100%;display:flex;justify-content:center;overflow:hidden;margin:10px 0;}
+.etiqueta-scale{transform-origin:top center;display:block;}
+.etiqueta{width:500px;height:200px;background:#fff;color:#111;border:1.5px solid #111;display:grid;grid-template-columns:1fr 100px;font-size:10px;box-shadow:0 4px 30px rgba(0,0,0,.6);}
+.et-body{padding:9px 9px 9px 12px;display:flex;flex-direction:column;border-right:1.5px solid #111;overflow:hidden;}
+.et-top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1.5px solid #111;padding-bottom:5px;margin-bottom:5px;}
+.et-marca{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;color:#0a0a0a;line-height:1;}
+.et-marca-sub{font-size:7px;color:#111;letter-spacing:1.5px;text-transform:uppercase;margin-top:1px;}
+.et-chip{font-size:7px;font-weight:700;background:#0a0a0a;color:#fff;padding:2px 6px;letter-spacing:1.5px;text-transform:uppercase;align-self:flex-start;}
+.et-produto{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#0a0a0a;line-height:1;margin-bottom:5px;border-bottom:1px solid #eee;padding-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.et-campos{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px 8px;flex:1;}
+.et-campo{display:flex;flex-direction:column;}
+.et-campo.span2{grid-column:span 2;}
+.et-campo-label{font-size:7px;color:#222;text-transform:uppercase;letter-spacing:.8px;font-weight:700;}
+.et-campo-valor{font-size:9px;font-weight:700;color:#111;line-height:1.3;}
+.et-campo-valor.alerta{color:#c0392b;}
+.et-footer{border-top:1px solid #eee;padding-top:3px;margin-top:auto;display:flex;align-items:center;gap:5px;}
+.et-resp-label{font-size:7px;color:#111;text-transform:uppercase;}
+.et-resp-nome{font-size:8px;font-weight:700;color:#111;}
+.et-lote{font-size:7px;font-weight:700;font-family:'Courier New',monospace;background:#f0f0f0;border:1px solid #ddd;padding:1px 4px;letter-spacing:1px;margin-left:auto;}
+.et-hash{font-size:6.5px;color:#333;font-family:'Courier New',monospace;}
+.et-qr{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 5px;gap:3px;background:#fafafa;}
+.et-qr canvas,.et-qr img{width:76px !important;height:76px !important;image-rendering:crisp-edges;image-rendering:-webkit-optimize-contrast;}
+  /* QR no A4 — não deixa o CSS espremer */
+  .a4-etiqueta .et-qr canvas,.a4-etiqueta .et-qr img{width:72px !important;height:72px !important;image-rendering:crisp-edges;}
+  /* Etiqueta no A4 — campos em 2 colunas para não cortar texto */
+  .a4-etiqueta .etiqueta{width:100%;height:auto;min-height:3.8cm;}
+  .a4-etiqueta .et-campos{grid-template-columns:1fr 1fr !important;}
+  .a4-etiqueta .et-campo.span2{grid-column:span 2;}
+  .a4-etiqueta .et-campo-label{font-size:6pt !important;white-space:nowrap;}
+  .a4-etiqueta .et-campo-valor{font-size:8pt !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .a4-etiqueta .et-produto{font-size:16pt !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .a4-etiqueta .et-marca{font-size:13pt !important;}
+  .a4-etiqueta .et-marca-sub{font-size:6pt !important;}
+  .a4-etiqueta .et-chip{font-size:6pt !important;}
+  .a4-etiqueta .et-resp-label{font-size:6pt !important;}
+  .a4-etiqueta .et-resp-nome{font-size:7pt !important;}
+  .a4-etiqueta .et-lote{font-size:6pt !important;}
+  .a4-etiqueta .et-hash{font-size:5.5pt !important;}
+  .a4-etiqueta .et-qr-info{font-size:6pt !important;}
+  .a4-etiqueta .et-qr-sub{font-size:6pt !important;}
+.et-qr-info{font-size:7px;font-weight:700;color:#333;font-family:'Courier New',monospace;text-align:center;line-height:1.4;}
+.et-qr-sub{font-size:7px;color:#111;text-align:center;text-transform:uppercase;letter-spacing:.5px;line-height:1.3;font-weight:700;}
+.qr-erro{font-size:8px;color:#c0392b;text-align:center;padding:4px;}
+
+/* ── CONFIG ZEBRA ── */
+.config-card{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:10px;overflow:hidden;margin-top:10px;}
+.config-header{padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.config-header span{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#333;}
+.config-body{padding:0 16px 16px;display:none;flex-direction:column;gap:10px;}
+.config-body.open{display:flex;}
+.status-pill{font-size:9px;font-weight:700;letter-spacing:1px;padding:8px 12px;border-radius:8px;white-space:nowrap;}
+.status-pill.aguard{background:#2a2a0a;color:#facc15;}
+.status-pill.ok{background:#0a2a0a;color:var(--verde);}
+.status-pill.erro{background:#2a0a0a;color:#f87171;}
+.info-box{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:12px;font-size:11px;color:#444;line-height:1.7;}
+.info-box code{color:#555;font-size:10px;background:#111;padding:1px 5px;border-radius:3px;}
+
+
+/* ── SCANNER ── */
+.scanner-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.scanner-box{position:relative;width:280px;height:280px;border-radius:16px;overflow:hidden;background:#000;}
+.scanner-box video{width:100%;height:100%;object-fit:cover;}
+.scanner-box canvas{display:none;}
+.scanner-frame{position:absolute;inset:0;border:2px solid var(--ouro);border-radius:16px;pointer-events:none;}
+.scanner-corners::before,.scanner-corners::after{content:'';position:absolute;width:28px;height:28px;border-color:var(--ouro);border-style:solid;}
+.scanner-corners::before{top:8px;left:8px;border-width:3px 0 0 3px;}
+.scanner-corners::after{bottom:8px;right:8px;border-width:0 3px 3px 0;}
+.scanner-line{position:absolute;left:10px;right:10px;height:2px;background:var(--ouro);opacity:.8;animation:scanline 2s linear infinite;}
+@keyframes scanline{0%{top:10px;}100%{top:calc(100% - 10px);}}
+.scanner-label{font-size:12px;color:#888;letter-spacing:2px;text-transform:uppercase;}
+.scanner-erro{font-size:11px;color:#f87171;text-align:center;max-width:280px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);font-weight:700;font-size:12px;letter-spacing:1px;padding:12px 24px;border-radius:30px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.ok{background:var(--ouro);color:var(--preto);}
+.toast.verde{background:#0d2b0d;color:var(--verde);border:1px solid #1a4a1a;}
+.toast.erro{background:#2a0a0a;color:#f87171;border:1px solid #4a1a1a;}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:40px 20px;color:#333;}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.empty-txt{font-size:12px;letter-spacing:1px;text-transform:uppercase;}
+
+/* ── IMPRESSÃO A4 ── */
+@media print {
+  body{background:#fff;padding:0;margin:0;}
+  .topbar,.nav-tabs,.page:not(#page-a4){display:none!important;}
+  #page-a4{display:block!important;padding:0;margin:0;}
+  .no-print{display:none!important;}
+  .toast{display:none!important;}
+  /* Remove cabeçalho/rodapé do browser */
+  @page{margin:0;size:A4 portrait;}
+  @page{margin:0.3cm;size:A4 portrait;}
+  .a4-sheet{
+    width:20.4cm;
+    height:29.1cm;
+    padding:0;
+    page-break-after:always;
+    break-after:page;
+    page-break-inside:avoid;
+    break-inside:avoid;
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:repeat(3, 1fr);
+    gap:0.15cm;
+    box-sizing:border-box;
+  }
+  .a4-sheet:last-child{page-break-after:auto;break-after:auto;}
+  .a4-grid{display:contents;}
+  .a4-etiqueta{
+    border:0.5px dashed #bbb;
+    padding:2px;
+    page-break-inside:avoid;
+    break-inside:avoid;
+    overflow:hidden;
+    min-height:0;
+  }
+  .etiqueta{width:100%;height:auto;box-shadow:none;border:1px solid #111;}
+  .etiqueta-scale{transform:none!important;margin:0!important;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div>
+    <div class="logo">NUM<span>AR</span></div>
+    <div class="logo-sub">Controle de Alimentos</div>
+  </div>
+  <div style="font-size:9px;color:#333;letter-spacing:1px;" id="relogio"></div>
+</div>
+
+<!-- ABAS -->
+<div class="nav-tabs">
+  <button class="tab active" onclick="irPara('etiqueta',this)">Etiquetas</button>
+  <button class="tab" onclick="irPara('ativas',this)">Proteínas Ativas</button>
+  <button class="tab" onclick="irPara('contagem',this)">Contagem</button>
+  <button class="tab" onclick="irPara('historico',this)">Histórico</button>
+  <button class="tab" onclick="irPara('a4',this)">Imprimir A4</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- ABA 1 — ETIQUETA                            -->
+<!-- ════════════════════════════════════════════ -->
+<div class="page active" id="page-etiqueta">
+
+  <div class="secao-titulo">Produto</div>
+  <div class="grid2" style="margin-bottom:12px;">
+    <div class="campo full"><label>Nome do produto</label><input type="text" id="inp-produto" value="PICANHA" autocapitalize="characters"/></div>
+    <div class="campo"><label>Peso / Porção</label><input type="text" id="inp-peso" value="500 g"/></div>
+    <div class="campo"><label>Quantidade</label><input type="number" id="inp-qtd" value="12" min="1" inputmode="numeric"/></div>
+    <div class="campo full"><label>Temperatura</label>
+      <select id="inp-temp"><option>RESFRIADO</option><option>CONGELADO</option><option>SECO</option><option>AMBIENTE</option></select>
+    </div>
+  </div>
+
+  <div class="secao-titulo">Datas</div>
+  <div class="grid2" style="margin-bottom:12px;">
+    <div class="campo"><label>Validade Original</label><input type="date" id="inp-val-original"/></div>
+    <div class="campo"><label>Responsável</label><input type="text" id="inp-resp" value="VICTOR" autocapitalize="characters"/></div>
+    <div class="campo"><label>Manipulação</label><input type="datetime-local" id="inp-manipulacao"/></div>
+    <div class="campo"><label>Validade</label><input type="datetime-local" id="inp-validade"/></div>
+  </div>
+
+  <div class="secao-titulo">Setor</div>
+  <div class="campo" style="margin-bottom:16px;">
+    <label>Setor / Lote</label>
+    <select id="inp-lote">
+      <option value="PARRILHA">PARRILHA</option>
+      <option value="PRODUCAO">PRODUÇÃO</option>
+      <option value="GELADEIRA GERAL">GELADEIRA GERAL</option>
+      <option value="SECO">SECO</option>
+      <option value="BAR">BAR</option>
+    </select>
+  </div>
+
+  <div class="btn-row col3" style="margin-bottom:16px;">
+    <button class="btn btn-ouro" onclick="gerarEtiqueta()">▶ Gerar</button>
+    <button class="btn btn-ghost" onclick="window.print()">🖨 A4</button>
+    <button class="btn btn-verde" id="btn-zebra" onclick="imprimirZebra()">⬡ Zebra</button>
+  </div>
+
+  <!-- Preview etiqueta -->
+  <div class="secao-titulo">Preview</div>
+  <div class="etiqueta-outer">
+    <div class="etiqueta-scale" id="escala">
+      <div class="etiqueta">
+        <div class="et-body">
+          <div class="et-top">
+            <div><div class="et-marca">NUMAR</div><div class="et-marca-sub">Controle de Alimentos</div></div>
+            <div class="et-chip" id="lbl-temp">RESFRIADO</div>
+          </div>
+          <div class="et-produto" id="lbl-produto">PICANHA</div>
+          <div class="et-campos">
+            <div class="et-campo"><span class="et-campo-label">Peso/Porção</span><span class="et-campo-valor" id="lbl-peso">500 g</span></div>
+            <div class="et-campo"><span class="et-campo-label">Quantidade</span><span class="et-campo-valor" id="lbl-qtd">12 un.</span></div>
+            <div class="et-campo"><span class="et-campo-label">Val. Original</span><span class="et-campo-valor" id="lbl-val-original">—</span></div>
+            <div class="et-campo"><span class="et-campo-label">Manipulação</span><span class="et-campo-valor" id="lbl-manipulacao">—</span></div>
+            <div class="et-campo span2"><span class="et-campo-label">Validade</span><span class="et-campo-valor alerta" id="lbl-validade">—</span></div>
+          </div>
+          <div class="et-footer">
+            <div><div class="et-resp-label">Resp.</div><div class="et-resp-nome" id="lbl-resp">VICTOR</div></div>
+            <span class="et-lote" id="lbl-lote">PARRILHA</span>
+            <span class="et-hash" id="lbl-hash">#NMR001</span>
+          </div>
+        </div>
+        <div class="et-qr">
+          <div id="qrcode"></div>
+          <div class="et-qr-info" id="lbl-qr-info">500g<br>12un</div>
+          <div class="et-qr-sub">Escanear<br>contagem</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Config Zebra -->
+  <div class="config-card">
+    <div class="config-header" onclick="toggleConfig(this)">
+      <span>⚙ Impressora Zebra</span><span style="color:#333;">▼</span>
+    </div>
+    <div class="config-body" id="config-body">
+      <div class="grid2">
+        <div class="campo"><label>IP da Zebra</label><input type="text" id="inp-ip" value="192.168.1.100"/></div>
+        <div class="campo"><label>Porta</label><input type="number" id="inp-porta" value="9100"/></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-ghost" style="width:auto;padding:10px 16px;" onclick="testarConexao()">Testar conexão</button>
+        <div id="status-conn" class="status-pill aguard">Não testado</div>
+      </div>
+      <div class="info-box">1. Conecte a Zebra no Wi-Fi do restaurante<br>2. Configure IP fixo no painel da impressora<br>3. Digite o IP acima e teste a conexão</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- ABA 2 — PROTEÍNAS ATIVAS                    -->
+<!-- ════════════════════════════════════════════ -->
+<div class="page" id="page-ativas">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div class="secao-titulo" style="margin-bottom:0;flex:1;">Proteínas em uso</div>
+    <div style="font-size:10px;color:#444;" id="contador-ativas">0 ativas</div>
+  </div>
+  <div id="lista-ativas">
+    <div class="empty"><div class="empty-icon">📦</div><div class="empty-txt">Nenhuma proteína ativa ainda.<br>Gere uma etiqueta para começar.</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- ABA 3 — CONTAGEM                            -->
+<!-- ════════════════════════════════════════════ -->
+<div class="page" id="page-contagem">
+  <div class="secao-titulo">Registrar contagem</div>
+
+  <!-- Botão de câmera -->
+  <button class="btn btn-ouro" onclick="abrirScanner()" style="margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:10px;">
+    <span style="font-size:18px;">📷</span> Escanear QR Code
+  </button>
+
+  <!-- Divisor -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+    <div style="flex:1;height:1px;background:#1a1a1a;"></div>
+    <span style="font-size:9px;color:#333;letter-spacing:2px;text-transform:uppercase;">ou selecione</span>
+    <div style="flex:1;height:1px;background:#1a1a1a;"></div>
+  </div>
+
+  <!-- Seletor de proteína -->
+  <div class="campo" style="margin-bottom:16px;">
+    <label>Produto ativo</label>
+    <select id="sel-contagem-produto" onchange="selecionarProdutoContagem()">
+      <option value="">— Selecione um produto —</option>
+    </select>
+  </div>
+
+  <!-- Card de contagem -->
+  <div class="contagem-card" id="card-contagem" style="display:none;">
+    <div class="contagem-produto" id="cont-nome">PICANHA</div>
+    <div class="contagem-sub" id="cont-sub">500g · PARRILHA · Vence: —</div>
+
+    <div class="secao-titulo" style="margin-top:8px;">Quantidade atual</div>
+    <div class="contador">
+      <button class="contador-btn" onclick="ajustarQtd(-1)">−</button>
+      <div>
+        <div class="contador-valor" id="cont-qtd">0</div>
+        <div class="contador-label">unidades</div>
+      </div>
+      <button class="contador-btn" onclick="ajustarQtd(1)">+</button>
+    </div>
+
+    <div class="secao-titulo">Observação</div>
+    <div class="campo" style="margin-bottom:14px;">
+      <textarea id="cont-obs" rows="2" placeholder="Ex: produto aberto, embalagem danificada..." style="resize:none;"></textarea>
+    </div>
+
+    <div class="btn-row col2">
+      <button class="btn btn-ouro" onclick="salvarContagem()">✓ Confirmar</button>
+      <button class="btn btn-red" onclick="baixarProduto()">✗ Dar baixa</button>
+    </div>
+  </div>
+
+  <div id="empty-contagem" style="margin-top:20px;">
+    <div class="empty"><div class="empty-icon">📦</div><div class="empty-txt">Escaneie um QR ou<br>selecione o produto acima.</div></div>
+  </div>
+</div>
+
+<!-- OVERLAY SCANNER -->
+<div class="scanner-overlay" id="scanner-overlay" style="display:none;">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--branco);">NUMAR <span style="color:var(--ouro);">SCAN</span></div>
+  <div class="scanner-box">
+    <video id="scanner-video" autoplay playsinline muted></video>
+    <canvas id="scanner-canvas"></canvas>
+    <div class="scanner-frame"></div>
+    <div class="scanner-corners"></div>
+    <div class="scanner-line"></div>
+  </div>
+  <div class="scanner-label">Aponte para o QR Code da etiqueta</div>
+  <div class="scanner-erro" id="scanner-erro"></div>
+  <button class="btn btn-ghost" style="width:200px;" onclick="fecharScanner()">✕ Cancelar</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- ABA 4 — HISTÓRICO                           -->
+<!-- ════════════════════════════════════════════ -->
+<div class="page" id="page-historico">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div class="secao-titulo" style="margin-bottom:0;flex:1;">Histórico de contagens</div>
+    <button class="btn-sm btn-sm-red" onclick="limparHistorico()">Limpar</button>
+  </div>
+  <div id="lista-historico">
+    <div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">Nenhuma contagem registrada.</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- ABA 5 — IMPRIMIR A4                         -->
+<!-- ════════════════════════════════════════════ -->
+<div class="page" id="page-a4">
+  <div class="no-print">
+    <div class="secao-titulo">Impressão em folha A4 adesiva</div>
+    <div class="card" style="margin-bottom:14px;">
+      <p style="font-size:11px;color:#555;line-height:1.7;">
+        Gere as etiquetas na aba <strong style="color:var(--ouro)">Etiquetas</strong> — elas aparecem automaticamente aqui.<br>
+        Clique em <strong style="color:var(--ouro)">Imprimir folha A4</strong> para imprimir 6 etiquetas por página.<br>
+        Use papel adesivo A4 e corte nas linhas tracejadas.
+      </p>
+    </div>
+    <div class="btn-row" style="margin-bottom:14px;">
+      <button class="btn btn-ouro no-print" onclick="window.print()">🖨 Imprimir folha A4</button>
+    </div>
+    <div class="secao-titulo">Etiquetas na fila (<span id="fila-count">0</span>)</div>
+    <div id="fila-preview" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <div id="fila-vazia" class="empty" style="display:none;"><div class="empty-icon">🏷</div><div class="empty-txt">Nenhuma etiqueta na fila.<br>Gere etiquetas para adicionar.</div></div>
+  </div>
+
+  <!-- GRID DE IMPRESSÃO (visível só no print) -->
+  <div class="a4-grid" id="a4-grid"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// STORAGE — persiste dados entre sessões
+// ══════════════════════════════════════════════
+const DB = {
+  get: k => { try { return JSON.parse(localStorage.getItem('numar_'+k)||'null'); } catch(e){ return null; } },
+  set: (k,v) => localStorage.setItem('numar_'+k, JSON.stringify(v)),
+  push: (k,v) => { const a = DB.get(k)||[]; a.unshift(v); DB.set(k, a.slice(0,200)); }
+};
+
+// ══════════════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════════════
+function irPara(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='ativas') renderAtivas();
+  if(id==='historico') renderHistorico();
+  if(id==='contagem') renderContagem();
+  if(id==='a4') renderA4();
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function sanitizar(str){
+  return (str||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\x00-\x7F]/g,'').toUpperCase().trim();
+}
+const agora = () => new Date();
+const toISO = d => { const l=new Date(d.getTime()-d.getTimezoneOffset()*60000); return l.toISOString().slice(0,16); };
+const fmt = str => {
+  if(!str) return '—';
+  const d = new Date(str+(str.length===10?'T00:00':''));
+  return d.toLocaleDateString('pt-BR')+(str.length>10?' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'');
+};
+const fmtCurto = str => {
+  if(!str) return '—';
+  const d = new Date(str+(str.length===10?'T00:00':''));
+  return d.toLocaleDateString('pt-BR');
+};
+
+function showToast(msg,tipo){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+(tipo||'ok')+' show';
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function escalar(){
+  const outer=document.querySelector('.etiqueta-outer');
+  const scale=document.getElementById('escala');
+  if(!outer||!scale) return;
+  const ratio=Math.min(1,(outer.clientWidth-2)/500);
+  scale.style.transform='scale('+ratio+')';
+  scale.style.marginBottom=(200*ratio-200)+'px';
+}
+window.addEventListener('resize', escalar);
+
+// Relógio
+setInterval(()=>{
+  const d=new Date();
+  document.getElementById('relogio').textContent=d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+},1000);
+
+// ══════════════════════════════════════════════
+// ETIQUETA — geração
+// ══════════════════════════════════════════════
+let _dados = {};
+let _fila  = DB.get('fila') || [];
+
+// Init datas
+const _agora = new Date();
+document.getElementById('inp-manipulacao').value = toISO(_agora);
+document.getElementById('inp-validade').value    = toISO(new Date(_agora.getTime()+3*86400000));
+document.getElementById('inp-val-original').value= _agora.toISOString().slice(0,10);
+
+function gerarQR(texto){
+  const div=document.getElementById('qrcode');
+  div.innerHTML='';
+  try {
+    new QRCode(div,{text:sanitizar(texto),width:300,height:300,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  } catch(e){ div.innerHTML='<div class="qr-erro">Erro QR</div>'; }
+}
+
+function gerarEtiqueta(){
+  const produto = (document.getElementById('inp-produto').value||'PRODUTO').toUpperCase();
+  const temp    = document.getElementById('inp-temp').value;
+  const peso    = document.getElementById('inp-peso').value;
+  const qtd     = document.getElementById('inp-qtd').value;
+  const resp    = (document.getElementById('inp-resp').value||'').toUpperCase();
+  const loteVal = document.getElementById('inp-lote').value;
+  const loteLabel=document.getElementById('inp-lote').options[document.getElementById('inp-lote').selectedIndex].text;
+  const valOrig = document.getElementById('inp-val-original').value;
+  const manip   = document.getElementById('inp-manipulacao').value;
+  const val     = document.getElementById('inp-validade').value;
+  const hash    = '#NMR'+Date.now().toString(36).slice(-4).toUpperCase();
+  const id      = Date.now();
+
+  _dados = {id,produto,temp,peso,qtd:parseInt(qtd),qtdAtual:parseInt(qtd),resp,loteVal,loteLabel,valOrig,manip,val,hash,ativa:true};
+
+  // Atualiza visual
+  document.getElementById('lbl-produto').textContent=produto;
+  document.getElementById('lbl-temp').textContent=temp;
+  document.getElementById('lbl-peso').textContent=peso;
+  document.getElementById('lbl-qtd').textContent=qtd+' un.';
+  document.getElementById('lbl-val-original').textContent=fmtCurto(valOrig);
+  document.getElementById('lbl-manipulacao').textContent=fmt(manip);
+  document.getElementById('lbl-validade').textContent=fmt(val);
+  document.getElementById('lbl-resp').textContent=resp;
+  document.getElementById('lbl-lote').textContent=loteLabel;
+  document.getElementById('lbl-qr-info').innerHTML=peso+'<br>'+qtd+'un';
+  document.getElementById('lbl-hash').textContent=hash;
+
+  // QR em texto puro compacto — chaves curtas = QR menor = mais legível na impressão
+  const qrUrl = [
+    'NMR',
+    id,
+    sanitizar(produto),
+    sanitizar(peso),
+    qtd,
+    sanitizar(loteVal),
+    sanitizar(fmt(val)),
+    sanitizar(hash)
+  ].join('|');
+  gerarQR(qrUrl);
+
+  // Salva como ativa
+  const ativas = DB.get('ativas')||[];
+  ativas.unshift(_dados);
+  DB.set('ativas', ativas);
+
+  // Adiciona à fila A4
+  _fila.unshift({..._dados, qrUrl});
+  DB.set('fila', _fila);
+
+  escalar();
+  showToast('✓ Etiqueta gerada e salva!','ok');
+}
+
+// ══════════════════════════════════════════════
+// PROTEÍNAS ATIVAS
+// ══════════════════════════════════════════════
+function renderAtivas(){
+  const ativas = (DB.get('ativas')||[]).filter(p=>p.ativa);
+  const lista  = document.getElementById('lista-ativas');
+  document.getElementById('contador-ativas').textContent = ativas.length+' ativa'+(ativas.length!==1?'s':'');
+
+  if(!ativas.length){
+    lista.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div class="empty-txt">Nenhuma proteína ativa.<br>Gere uma etiqueta para começar.</div></div>';
+    return;
+  }
+
+  lista.innerHTML = ativas.map(p => {
+    const valDate = new Date(p.val+(p.val.length===10?'T00:00':''));
+    const hoje    = new Date();
+    const diff    = (valDate-hoje)/(1000*60*60*24);
+    let badge, cls='';
+    if(diff<0){badge='<span class="badge badge-err">Vencida</span>';cls='vencida';}
+    else if(diff<1){badge='<span class="badge badge-warn">Vence hoje</span>';cls='vencendo';}
+    else if(diff<2){badge='<span class="badge badge-warn">Vence amanhã</span>';cls='vencendo';}
+    else{badge='<span class="badge badge-ok">Ativa</span>';}
+
+    return `<div class="proteina-card ${cls}">
+      <div class="proteina-header">
+        <div class="proteina-nome">${p.produto}</div>
+        ${badge}
+      </div>
+      <div class="proteina-meta">
+        <div class="proteina-campo"><div class="proteina-label">Qtd atual</div><div class="proteina-valor">${p.qtdAtual} un.</div></div>
+        <div class="proteina-campo"><div class="proteina-label">Peso/Porção</div><div class="proteina-valor">${p.peso}</div></div>
+        <div class="proteina-campo"><div class="proteina-label">Setor</div><div class="proteina-valor">${p.loteLabel||p.loteVal}</div></div>
+        <div class="proteina-campo"><div class="proteina-label">Validade</div><div class="proteina-valor proteina-val-date">${fmt(p.val)}</div></div>
+        <div class="proteina-campo"><div class="proteina-label">Responsável</div><div class="proteina-valor">${p.resp}</div></div>
+        <div class="proteina-campo"><div class="proteina-label">ID</div><div class="proteina-valor" style="font-size:9px;color:#333;">${p.hash}</div></div>
+      </div>
+      <div class="proteina-actions">
+        <button class="btn-sm btn-sm-ouro" onclick="abrirContagem(${p.id})">📊 Contar</button>
+        <button class="btn-sm btn-sm-red" onclick="darBaixaDireto(${p.id})">✗ Dar baixa</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function darBaixaDireto(id){
+  const ativas = DB.get('ativas')||[];
+  const idx    = ativas.findIndex(p=>p.id===id);
+  if(idx<0) return;
+  ativas[idx].ativa = false;
+  DB.set('ativas', ativas);
+  DB.push('historico',{...ativas[idx], tipo:'baixa', data:new Date().toISOString(), qtdFinal:0});
+  showToast('✓ Produto baixado!','verde');
+  renderAtivas();
+}
+
+function abrirContagem(id){
+  document.querySelectorAll('.tab')[2].click();
+  setTimeout(()=>{
+    document.getElementById('sel-contagem-produto').value = id;
+    selecionarProdutoContagem();
+  },100);
+}
+
+// ══════════════════════════════════════════════
+// CONTAGEM
+// ══════════════════════════════════════════════
+let _produtoSelecionado = null;
+
+function renderContagem(){
+  const ativas = (DB.get('ativas')||[]).filter(p=>p.ativa);
+  const sel    = document.getElementById('sel-contagem-produto');
+  const prev   = sel.value;
+  sel.innerHTML = '<option value="">— Selecione ou escaneie o QR —</option>';
+  ativas.forEach(p=>{
+    const opt=document.createElement('option');
+    opt.value=p.id; opt.textContent=p.produto+' · '+p.loteLabel;
+    sel.appendChild(opt);
+  });
+  if(prev) sel.value=prev;
+}
+
+function selecionarProdutoContagem(){
+  const id    = document.getElementById('sel-contagem-produto').value;
+  const ativas= DB.get('ativas')||[];
+  const prod  = ativas.find(p=>p.id==id);
+
+  if(!prod){
+    document.getElementById('card-contagem').style.display='none';
+    document.getElementById('empty-contagem').style.display='block';
+    _produtoSelecionado=null; return;
+  }
+
+  _produtoSelecionado=prod;
+  document.getElementById('card-contagem').style.display='block';
+  document.getElementById('empty-contagem').style.display='none';
+  document.getElementById('cont-nome').textContent=prod.produto;
+  document.getElementById('cont-sub').textContent=prod.peso+' · '+(prod.loteLabel||prod.loteVal)+' · Vence: '+fmtCurto(prod.val);
+  document.getElementById('cont-qtd').textContent=prod.qtdAtual||0;
+  document.getElementById('cont-obs').value='';
+}
+
+function ajustarQtd(delta){
+  const el  = document.getElementById('cont-qtd');
+  const val = Math.max(0, parseInt(el.textContent)+delta);
+  el.textContent=val;
+}
+
+function salvarContagem(){
+  if(!_produtoSelecionado){showToast('Selecione um produto','erro');return;}
+  const qtdNova = parseInt(document.getElementById('cont-qtd').textContent);
+  const obs     = document.getElementById('cont-obs').value;
+  const ativas  = DB.get('ativas')||[];
+  const idx     = ativas.findIndex(p=>p.id===_produtoSelecionado.id);
+  if(idx<0) return;
+
+  const qtdAnterior = ativas[idx].qtdAtual;
+  ativas[idx].qtdAtual = qtdNova;
+  DB.set('ativas', ativas);
+
+  DB.push('historico',{
+    id:_produtoSelecionado.id, produto:_produtoSelecionado.produto,
+    setor:_produtoSelecionado.loteLabel||_produtoSelecionado.loteVal,
+    qtdAnterior, qtdNova, diferenca:qtdNova-qtdAnterior,
+    obs, tipo:'contagem', data:new Date().toISOString()
+  });
+
+  showToast('✓ Contagem salva!','ok');
+  renderContagem();
+  selecionarProdutoContagem();
+}
+
+function baixarProduto(){
+  if(!_produtoSelecionado){showToast('Selecione um produto','erro');return;}
+  darBaixaDireto(_produtoSelecionado.id);
+  document.getElementById('sel-contagem-produto').value='';
+  selecionarProdutoContagem();
+}
+
+// ══════════════════════════════════════════════
+// HISTÓRICO
+// ══════════════════════════════════════════════
+function renderHistorico(){
+  const hist  = DB.get('historico')||[];
+  const lista = document.getElementById('lista-historico');
+  if(!hist.length){
+    lista.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">Nenhuma contagem registrada.</div></div>';
+    return;
+  }
+  lista.innerHTML=hist.map(h=>{
+    const d     = new Date(h.data);
+    const hora  = d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const tipo  = h.tipo==='baixa'?'Baixa dada':'Contagem';
+    const diff  = h.diferenca>=0?'+'+h.diferenca:h.diferenca;
+    const cor   = h.tipo==='baixa'?'saida':h.diferenca>=0?'entrada':'saida';
+    return `<div class="hist-item">
+      <div>
+        <div class="hist-nome">${h.produto}</div>
+        <div class="hist-meta">${tipo} · ${h.setor||''} · ${hora}</div>
+        ${h.obs?`<div class="hist-meta" style="color:#555;font-style:italic;">"${h.obs}"</div>`:''}
+      </div>
+      <div class="hist-qtd ${cor}">${h.tipo==='baixa'?'Baixa':diff+' un.'}</div>
+    </div>`;
+  }).join('');
+}
+
+function limparHistorico(){
+  DB.set('historico',[]);
+  renderHistorico();
+  showToast('Histórico limpo','ok');
+}
+
+// ══════════════════════════════════════════════
+// IMPRESSÃO A4 — 6 etiquetas por folha
+// ══════════════════════════════════════════════
+function renderA4(){
+  const fila = DB.get('fila')||[];
+  document.getElementById('fila-count').textContent=fila.length;
+  const preview = document.getElementById('fila-preview');
+  const vazia   = document.getElementById('fila-vazia');
+  const grid    = document.getElementById('a4-grid');
+
+  if(!fila.length){
+    preview.innerHTML=''; vazia.style.display='block'; grid.innerHTML=''; return;
+  }
+  vazia.style.display='none';
+
+  // Preview no mobile — lista com opção de remover e limpar tudo
+  preview.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:10px;color:#555;">${Math.ceil(fila.length/6)} folha(s) A4 · ${fila.length} etiqueta(s) · 6 por folha (2 colunas × 3 linhas)</span>
+      <button class="btn-sm btn-sm-red" onclick="limparFila()">Limpar fila</button>
+    </div>
+  `+fila.map((p,i)=>`
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;margin-bottom:6px;">
+      <div>
+        <div style="font-weight:700;font-size:13px;">${p.produto}</div>
+        <div style="font-size:10px;color:#444;">${p.peso} · ${p.loteLabel||p.loteVal} · ${fmtCurto(p.val)}</div>
+        <div style="font-size:9px;color:#333;">Folha ${Math.floor(i/6)+1} · posição ${(i%6)+1}</div>
+      </div>
+      <button class="btn-sm btn-sm-red" onclick="removerDaFila(${i})">✕</button>
+    </div>`).join('');
+
+  // Monta folhas de impressão — cada folha tem 6 slots (3 colunas × 2 linhas)
+  const folhas = [];
+  for(let i=0; i<fila.length; i+=6){
+    const slots = fila.slice(i, i+6);
+    // Completa com slots vazios até 6
+    while(slots.length < 6) slots.push(null);
+    folhas.push(slots);
+  }
+
+  function etiquetaHTML(p){
+    if(!p) return '<div class="a4-etiqueta" style="min-height:3.8cm;border:0.5px dashed #eee;"></div>';
+    return `<div class="a4-etiqueta">
+      <div class="etiqueta" style="width:100%;height:auto;">
+        <div class="et-body">
+          <div class="et-top">
+            <div><div class="et-marca">NUMAR</div><div class="et-marca-sub">Controle de Alimentos</div></div>
+            <div class="et-chip">${p.temp||'RESFRIADO'}</div>
+          </div>
+          <div class="et-produto">${p.produto}</div>
+          <div class="et-campos">
+            <div class="et-campo"><span class="et-campo-label">Peso/Porção</span><span class="et-campo-valor">${p.peso}</span></div>
+            <div class="et-campo"><span class="et-campo-label">Quantidade</span><span class="et-campo-valor">${p.qtd} un.</span></div>
+            <div class="et-campo"><span class="et-campo-label">Val. Original</span><span class="et-campo-valor">${fmtCurto(p.valOrig)}</span></div>
+            <div class="et-campo"><span class="et-campo-label">Manipulação</span><span class="et-campo-valor">${fmt(p.manip)}</span></div>
+            <div class="et-campo span2"><span class="et-campo-label">Validade</span><span class="et-campo-valor alerta">${fmt(p.val)}</span></div>
+          </div>
+          <div class="et-footer">
+            <div><div class="et-resp-label">Resp.</div><div class="et-resp-nome">${p.resp}</div></div>
+            <span class="et-lote">${p.loteLabel||p.loteVal}</span>
+            <span class="et-hash">${p.hash}</span>
+          </div>
+        </div>
+        <div class="et-qr">
+          <div id="qra4-${p.id}"></div>
+          <div class="et-qr-info">${p.peso}<br>${p.qtd}un</div>
+          <div class="et-qr-sub">Escanear<br>contagem</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Cada folha vira uma div.a4-sheet com page-break-after
+  // Cada folha é um div.a4-sheet com exatamente 6 slots diretos (sem a4-grid interno)
+  grid.innerHTML = folhas.map((slots, fi) =>
+    `<div class="a4-sheet">${slots.map(etiquetaHTML).join('')}</div>`
+  ).join('');
+
+  // Gera QR de cada etiqueta em alta resolução
+  setTimeout(()=>{
+    fila.forEach(p=>{
+      const el = document.getElementById('qra4-'+p.id);
+      if(!el) return;
+      try{
+        new QRCode(el,{
+          text: sanitizar(p.qrUrl||p.hash),
+          width: 300,
+          height: 300,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+        const img = el.querySelector('img,canvas');
+        if(img){ img.style.width='72px'; img.style.height='72px'; img.style.imageRendering='crisp-edges'; }
+      }catch(e){}
+    });
+  },300);
+}
+
+function limparFila(){
+  DB.set('fila',[]);
+  renderA4();
+  showToast('Fila limpa','ok');
+}
+
+function removerDaFila(idx){
+  const fila=DB.get('fila')||[];
+  fila.splice(idx,1);
+  DB.set('fila',fila);
+  renderA4();
+}
+
+// ══════════════════════════════════════════════
+// QR CODE — receber via URL params
+// ══════════════════════════════════════════════
+function verificarQRParams(){
+  const params=new URLSearchParams(window.location.search);
+  const id=params.get('id');
+  if(!id) return;
+  // Vai para aba contagem e seleciona o produto
+  document.querySelectorAll('.tab')[2].click();
+  setTimeout(()=>{
+    document.getElementById('sel-contagem-produto').value=id;
+    selecionarProdutoContagem();
+    if(!_produtoSelecionado){
+      showToast('Produto não encontrado no sistema','erro');
+    } else {
+      showToast('✓ Produto carregado via QR!','verde');
+    }
+  },300);
+}
+
+// ══════════════════════════════════════════════
+// ZEBRA
+// ══════════════════════════════════════════════
+function toggleConfig(header){
+  header.nextElementSibling.classList.toggle('open');
+}
+
+function gerarZPL(d){
+  const p=sanitizar(d.produto),t=sanitizar(d.temp),pe=sanitizar(d.peso);
+  const q=d.qtd+' UN.',re=sanitizar(d.resp),lo=sanitizar(d.loteVal);
+  const ma=sanitizar(fmt(d.manip)),va=sanitizar(fmt(d.val)),id=sanitizar(d.hash);
+  const qrData='NUMAR|'+p+'|'+pe+'|'+q+'|'+lo+'|'+re+'|'+ma+'|'+va+'|'+id;
+  return ['^XA','^PW800','^LL320','^PQ1','^CI0',
+    '^FO5,5^GB790,310,2^FS','^FO635,5^GB2,310,2^FS',
+    '^FO15,12^A0N,36,36^FDNUMAR^FS','^FO15,52^A0N,14,14^FDCONTROLE DE ALIMENTOS^FS',
+    '^FO5,72^GB625,2,2^FS','^FO480,10^GB150,56,2^FS','^FO488,24^A0N,22,22^FD'+t+'^FS',
+    '^FO15,82^A0N,44,44^FD'+p+'^FS','^FO5,132^GB625,1,1^FS',
+    '^FO15,140^A0N,16,16^FDPESO/PORCAO^FS','^FO15,160^A0N,22,22^FD'+pe+'^FS',
+    '^FO200,140^A0N,16,16^FDQUANTIDADE^FS','^FO200,160^A0N,22,22^FD'+q+'^FS',
+    '^FO390,140^A0N,16,16^FDVAL.ORIGINAL^FS','^FO390,160^A0N,20,20^FD'+sanitizar(fmt(d.valOrig))+'^FS',
+    '^FO15,192^A0N,16,16^FDMANIPULACAO^FS','^FO15,212^A0N,20,20^FD'+ma+'^FS',
+    '^FO300,192^A0N,16,16^FDVALIDADE^FS','^FO300,212^A0N,24,24^FD'+va+'^FS',
+    '^FO5,248^GB625,1,1^FS','^FO15,256^A0N,16,16^FDRESP.:^FS','^FO75,254^A0N,22,22^FD'+re+'^FS',
+    '^FO300,254^A0N,18,18^FD['+lo+']^FS','^FO470,258^A0N,14,14^FD'+id+'^FS',
+    '^FO648,20^BQN,2,4^FDQA,'+qrData+'^FS',
+    '^FO645,260^A0N,14,14^FDESCANEAR^FS','^FO648,278^A0N,14,14^FDCONTAGEM^FS','^XZ'
+  ].join('\n');
+}
+
+async function testarConexao(){
+  const ip=document.getElementById('inp-ip').value.trim();
+  const porta=document.getElementById('inp-porta').value||'9100';
+  const pill=document.getElementById('status-conn');
+  pill.className='status-pill aguard'; pill.textContent='Testando...';
+  try{
+    await fetch('http://'+ip+':'+porta,{method:'POST',body:'^XA^XZ',signal:AbortSignal.timeout(3000)});
+    pill.className='status-pill ok'; pill.textContent='✓ Conectado';
+  }catch(e){
+    if(e.name==='AbortError'){pill.className='status-pill erro';pill.textContent='✗ Timeout';}
+    else{pill.className='status-pill ok';pill.textContent='✓ Conectado';}
+  }
+}
+
+async function imprimirZebra(){
+  if(!_dados.produto){showToast('Gere uma etiqueta primeiro!','erro');return;}
+  const ip=document.getElementById('inp-ip').value.trim();
+  const porta=document.getElementById('inp-porta').value||'9100';
+  const btn=document.getElementById('btn-zebra');
+  if(!ip){showToast('Configure o IP da Zebra!','erro');return;}
+  btn.textContent='...'; btn.disabled=true;
+  try{
+    await fetch('http://'+ip+':'+porta,{method:'POST',body:gerarZPL(_dados),signal:AbortSignal.timeout(5000)});
+    showToast('✓ Enviado para a Zebra!','verde');
+  }catch(e){
+    showToast(e.name==='AbortError'?'✗ Zebra não respondeu':'✓ Enviado para a Zebra!', e.name==='AbortError'?'erro':'verde');
+  }finally{btn.textContent='⬡ Zebra';btn.disabled=false;}
+}
+
+
+// ══════════════════════════════════════════════
+// SCANNER DE CÂMERA
+// ══════════════════════════════════════════════
+let _scannerStream = null;
+let _scannerRAF   = null;
+
+async function abrirScanner(){
+  const overlay = document.getElementById('scanner-overlay');
+  const video   = document.getElementById('scanner-video');
+  const erroEl  = document.getElementById('scanner-erro');
+  erroEl.textContent = '';
+  overlay.style.display = 'flex';
+
+  try {
+    _scannerStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width:{ideal:1280}, height:{ideal:720} }
+    });
+    video.srcObject = _scannerStream;
+    video.play();
+    video.addEventListener('loadedmetadata', () => { _scannerRAF = requestAnimationFrame(tickScanner); });
+  } catch(e) {
+    erroEl.textContent = 'Câmera não disponível. Permita o acesso nas configurações do navegador.';
+  }
+}
+
+function fecharScanner(){
+  if(_scannerStream){ _scannerStream.getTracks().forEach(t=>t.stop()); _scannerStream=null; }
+  if(_scannerRAF){ cancelAnimationFrame(_scannerRAF); _scannerRAF=null; }
+  document.getElementById('scanner-overlay').style.display='none';
+}
+
+function tickScanner(){
+  const video  = document.getElementById('scanner-video');
+  const canvas = document.getElementById('scanner-canvas');
+  if(!_scannerStream || video.readyState !== video.HAVE_ENOUGH_DATA){
+    _scannerRAF = requestAnimationFrame(tickScanner); return;
+  }
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  const code = jsQR(img.data, img.width, img.height, { inversionAttempts:'dontInvert' });
+  if(code){
+    fecharScanner();
+    processarQRLido(code.data);
+    return;
+  }
+  _scannerRAF = requestAnimationFrame(tickScanner);
+}
+
+function processarQRLido(texto){
+  // Formato compacto: NMR|id|PRODUTO|PESO|QTD|SETOR|VALIDADE|HASH
+  if(texto.startsWith('NMR|')){
+    const partes = texto.split('|');
+    const id   = partes[1];
+    const hash = partes[7];
+    const ativas = DB.get('ativas')||[];
+
+    let prod = ativas.find(p=>String(p.id)===String(id) && p.ativa);
+    if(!prod && hash) prod = ativas.find(p=>p.hash && sanitizar(p.hash)===hash && p.ativa);
+
+    if(prod){
+      document.getElementById('sel-contagem-produto').value = prod.id;
+      selecionarProdutoContagem();
+      showToast('✓ QR lido: '+prod.produto,'verde');
+      return;
+    } else {
+      showToast('Produto não encontrado — pode ter dado baixa já','erro');
+      return;
+    }
+  }
+
+  // Fallback: hash direto (#NMR...)
+  const hashMatch = texto.match(/#NMR[A-Z0-9]+/);
+  if(hashMatch){
+    const ativas = DB.get('ativas')||[];
+    const prod   = ativas.find(p=>p.hash===hashMatch[0] && p.ativa);
+    if(prod){
+      document.getElementById('sel-contagem-produto').value = prod.id;
+      selecionarProdutoContagem();
+      showToast('✓ QR lido: '+prod.produto,'verde');
+      return;
+    }
+  }
+
+  showToast('QR não reconhecido. Use etiquetas geradas pelo NUMAR.','erro');
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+window.onload = function(){
+  gerarEtiqueta();
+  escalar();
+  verificarQRParams();
+  // Limpa etiqueta inicial do storage (era só demo)
+  const ativas=DB.get('ativas')||[];
+  if(ativas.length>0 && ativas[0].produto==='PICANHA' && ativas.length===1){
+    // não limpa, pode ser real
+  }
+};
+</script>
+
+<script>
+// ══════════════════════════════════════════════
+// PWA — Service Worker + Install Prompt
+// ══════════════════════════════════════════════
+
+// Registra service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{
+    // Se não achar sw.js (file://), cria inline
+    const swCode = `
+      const CACHE = 'numar-v1';
+      const ASSETS = ['/'];
+      self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))));
+      self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
+    `;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob));
+  });
+}
+
+// Banner de instalação
+let _installPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _installPrompt = e;
+  mostrarBannerInstall();
+});
+
+function mostrarBannerInstall(){
+  // Só mostra se não estiver em modo standalone (já instalado)
+  if(window.matchMedia('(display-mode: standalone)').matches) return;
+  const banner = document.getElementById('install-banner');
+  if(banner) banner.style.display = 'flex';
+}
+
+async function instalarApp(){
+  if(!_installPrompt) return;
+  _installPrompt.prompt();
+  const result = await _installPrompt.userChoice;
+  if(result.outcome === 'accepted'){
+    document.getElementById('install-banner').style.display = 'none';
+    showToast('✓ NUMAR instalado!', 'verde');
+  }
+  _installPrompt = null;
+}
+
+function fecharBanner(){
+  document.getElementById('install-banner').style.display = 'none';
+}
+
+// Detecta se já está instalado
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').style.display = 'none';
+});
+</script>
+
+<!-- BANNER DE INSTALAÇÃO -->
+<div id="install-banner" style="display:none;position:fixed;bottom:80px;left:16px;right:16px;background:#111;border:1px solid #c8a96e;border-radius:14px;padding:14px 16px;z-index:998;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.6);">
+  <div style="width:40px;height:40px;background:#0a0a0a;border-radius:10px;border:1px solid #c8a96e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#c8a96e;letter-spacing:1px;">N</span>
+  </div>
+  <div style="flex:1;">
+    <div style="font-size:12px;font-weight:700;color:#f5f3ee;">Instalar NUMAR</div>
+    <div style="font-size:10px;color:#555;margin-top:2px;">Adicionar à tela inicial como app</div>
+  </div>
+  <button onclick="instalarApp()" style="background:#c8a96e;color:#0a0a0a;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;">Instalar</button>
+  <button onclick="fecharBanner()" style="background:transparent;color:#444;border:none;font-size:18px;cursor:pointer;padding:0 4px;">✕</button>
+</div>
+
+</body>
+</html>
